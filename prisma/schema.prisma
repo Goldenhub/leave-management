@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -14,10 +9,94 @@ datasource db {
 }
 
 model Employee {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  position  String
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  phone       String?
+  address     String?
+
+  roles       Role[]           @relation("EmployeeRoles")
+  departmentId Int?
+
+  department  Department? @relation(fields: [departmentId], references: [id])
+  leaves      Leave[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Role {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique
+  description    String?
+  permissions    String           // comma separated list of permissions
+
+  employees      Employee[]       @relation("EmployeeRoles")
+
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  @@map("roles")
+}
+
+model Department {
+  id        Int      @id @default(autoincrement())
+  name      String
+
+  employees Employee[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("departments")
+}
+
+model Leave {
+  id          Int      @id @default(autoincrement())
+  type        String
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  reason      String
+  status      LeaveStatus @default(PENDING)
+
+  employeeId  Int   @map("employee_id")
+  employee    Employee @relation(fields: [employeeId], references: [id])
+
+  leaveTypeId Int   @map("leave_type_id")
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("leaves")
+}
+
+model LeaveType {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  maxDays     Int?    @map("max_days")
+
+  leaves      Leave[]
+  leaveRequirements LeaveRequirement[]
+
+  @@map("leave_types")
+}
+
+model LeaveRequirement {
+  id          Int      @id @default(autoincrement())
+  name        String
+  leaveTypeId Int      @map("leave_type_id")
+
+  leaveType   LeaveType    @relation(fields: [leaveTypeId], references: [id])
+
+  @@map("leave_requirements")
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
 }
