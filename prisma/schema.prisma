@@ -1,6 +1,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -10,16 +11,24 @@ datasource db {
 
 model Employee {
   id          Int      @id @default(autoincrement())
-  name        String
+  employeeId  String   @unique @map("employee_id")
+  firstName   String? @map("first_name")
+  lastName    String? @map("last_name")
   email       String   @unique
   password    String
   phone       String?
   address     String?
+  passwordUpdated Boolean @default(false) @map("password_updated")
+  employmentStatus EmploymentStatus @default(Active) @map("employment_status")
+  employmentDate DateTime @map("employment_date")
+  terminationDate DateTime? @map("termination_date")
 
-  roles       Role[]           @relation("EmployeeRoles")
-  departmentId Int?
+  roleId       Int  @map("role_id")
+  departmentId Int  @map("department_id")
 
-  department  Department? @relation(fields: [departmentId], references: [id])
+  department  Department @relation(fields: [departmentId], references: [id])
+  role       Role @relation(fields: [roleId], references: [id])
+
   leaves      Leave[]
 
   createdAt DateTime @default(now())
@@ -32,7 +41,7 @@ model Role {
   description    String?
   permissions    String           // comma separated list of permissions
 
-  employees      Employee[]       @relation("EmployeeRoles")
+  employees      Employee[]
 
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
@@ -43,6 +52,7 @@ model Role {
 model Department {
   id        Int      @id @default(autoincrement())
   name      String
+  code      String   @unique
 
   employees Employee[]
 
@@ -99,4 +109,10 @@ enum LeaveStatus {
   APPROVED
   REJECTED
   CANCELLED
+}
+
+enum EmploymentStatus {
+  Active
+  Suspended
+  Terminated
 }
