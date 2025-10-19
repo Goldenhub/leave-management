@@ -1,20 +1,25 @@
-import { Body, Controller, Post, BadRequestException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  BadRequestException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/auth.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { Employee } from 'generated/prisma/client';
+import { Designation, Employee, Role } from '@prisma/client';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(AuthGuard('local'))
   @Post('login')
-  async login(@Body() body: LoginDTO) {
-    const employee = await this.authService.validateEmployee(
-      body.email,
-      body.password,
-    );
+  async login(@Body() input: LoginDTO) {
+    const employee = await this.authService.validateEmployee(input);
 
     if (!employee) {
       throw new BadRequestException(
@@ -22,6 +27,16 @@ export class AuthController {
       );
     }
 
-    return this.authService.login(employee as Employee & { role: any });
+    const result = this.authService.login(
+      employee as Employee & { role: Role; designation: Designation },
+    );
+
+    return {
+      statusCode: 200,
+      message: 'Logged in successfully',
+      data: {
+        ...result,
+      },
+    };
   }
 }

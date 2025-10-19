@@ -11,11 +11,25 @@ import { RolesService } from './roles/roles.service';
 import { RolesController } from './roles/roles.controller';
 import { RolesModule } from './roles/roles.module';
 import { LeavesModule } from './leaves/leaves.module';
-import { LeavesModule } from './leaves/leaves.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, EmployeesModule, DepartmentsModule, RolesModule, LeavesModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    AuthModule,
+    EmployeesModule,
+    DepartmentsModule,
+    RolesModule,
+    LeavesModule,
+  ],
   controllers: [EmployeesController, DepartmentsController, RolesController],
-  providers: [PrismaService, EmployeesService, DepartmentsService, RolesService],
+  providers: [
+    PrismaService,
+    EmployeesService,
+    DepartmentsService,
+    RolesService,
+  ],
 })
 export class AppModule {}

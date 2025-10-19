@@ -1,0 +1,27 @@
+### Get Employees
+GET http://localhost:3000/api/v1/employees
+Content-Type: application/json
+
+### Get by EmployeeId
+GET http://localhost:3000/api/v1/employees/ENG-00004
+Content-Type: application/json
+
+### Create Employee
+POST http://localhost:3000/api/v1/employees
+Content-Type: application/json
+
+{
+    "firstName": "Hansel",
+    "lastName": "Prince",
+    "email": "staff1@company.com",
+    "password": "Staff@1234",
+    "phone": "08010000022",
+    "address": "Port Harcourt, Nigeria",
+    "departmentId": 2,
+    "roleId": 2,
+    "designationId": 2,
+    "gender": "Male",
+    "dateOfBirth": "1994-05-22",
+    "employmentDate": "2022-03-20",
+    "employmentStatus": "Active"
+}

@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Employee, Role } from 'generated/prisma';
+import { Designation, Employee, Role } from '@prisma/client';
 import { EmployeesService } from 'src/employees/employees.service';
 import { comparePassword } from 'src/utils/helpers.util';
-import {
-  AuthenticatedErrorResponseDTO,
-  AuthenticatedResponseDTO,
-} from './dto/auth.dto';
+import { AuthenticatedUserDTO, LoginDTO } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -15,12 +12,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateEmployee(
-    email: string,
-    password: string,
-  ): Promise<Partial<Employee & { role: Role }> | null> {
-    const employee = await this.employeesService.findByEmail(email);
-    if (employee && comparePassword(password, employee.password)) {
+  async validateEmployee(input: LoginDTO) {
+    const employee = await this.employeesService.findByEmail(input.email);
+    if (employee && comparePassword(input.password, employee.password)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = employee;
       return result;
@@ -29,18 +23,11 @@ export class AuthService {
   }
 
   login(
-    employee:
-      | (Partial<Employee> & {
-          role: Role;
-        })
-      | null,
-  ): AuthenticatedResponseDTO | AuthenticatedErrorResponseDTO {
-    if (!employee) {
-      return {
-        status: 'error',
-        error: 'Invalid email or password',
-      };
-    }
+    employee: Employee & {
+      role: Role;
+      designation: Designation;
+    },
+  ): AuthenticatedUserDTO {
     const employeePermissions = employee.role.permissions.split(',');
     const permissions = new Set<string>();
     employeePermissions.forEach((permission) => permissions.add(permission));
@@ -51,30 +38,29 @@ export class AuthService {
       name: employee.role.name,
       description: employee.role.description,
     };
+    const designation = {
+      id: employee.designation.id,
+      title: employee.designation.title,
+    };
 
     const payload = {
+      sub: employee.employeeId,
       email: employee.email,
-      employeeId: employee.employeeId as string,
-      role,
+      role: role.name,
+      designation: designation.title,
       permissions: uniquePermissions,
     };
 
     return {
-      status: 'success',
-      message: 'Login successful',
-      data: {
-        access_token: this.jwtService.sign(payload),
-        employee: {
-          employee_id: employee.employeeId as string,
-          email: employee.email as string,
-          first_name: employee.firstName as string,
-          last_name: employee.lastName as string,
-          role,
-          permissions: uniquePermissions,
-          password_updated: employee.passwordUpdated as boolean,
-        },
-        isAuthenticated: true,
-      },
+      access_token: this.jwtService.sign(payload),
+      employee_id: employee.employeeId,
+      email: employee.email,
+      first_name: employee.firstName as string,
+      last_name: employee.lastName as string,
+      designation,
+      role,
+      permissions: uniquePermissions,
+      password_updated: employee.passwordUpdated,
     };
   }
 }

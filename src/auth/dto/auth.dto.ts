@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from 'generated/prisma';
-import { IsBoolean, IsEmail, IsString } from 'class-validator';
+import { Designation, Role } from '@prisma/client';
+import {
+  IsArray,
+  IsBoolean,
+  IsEmail,
+  IsObject,
+  IsString,
+} from 'class-validator';
 
 export class LoginDTO {
   @ApiProperty()
@@ -12,21 +18,25 @@ export class LoginDTO {
 }
 
 export class AuthenticatedUserDTO {
-  @ApiProperty()
+  @IsString()
   access_token: string;
-  @ApiProperty()
-  employee: {
-    employee_id: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-    role?: Pick<Role, 'id' | 'name' | 'description'>;
-    permissions: string[];
-    password_updated?: boolean;
-  };
-  @ApiProperty()
+  @IsString()
+  employee_id: string;
+  @IsString()
+  email: string;
+  @IsString()
+  first_name?: string;
+  @IsString()
+  last_name?: string;
+  @IsObject()
+  role?: Pick<Role, 'id' | 'name' | 'description'>;
+  @IsObject()
+  designation?: Pick<Designation, 'id' | 'title'>;
+  @IsArray()
+  @IsString({ each: true })
+  permissions: string[];
   @IsBoolean()
-  isAuthenticated: boolean;
+  password_updated?: boolean;
 }
 
 export class AuthenticatedResponseDTO {
@@ -35,14 +45,6 @@ export class AuthenticatedResponseDTO {
   @ApiProperty()
   @IsString()
   message: string;
-  @ApiProperty()
-  @IsString()
-  status: string;
-}
-export class AuthenticatedErrorResponseDTO {
-  @ApiProperty()
-  @IsString()
-  error: string;
   @ApiProperty()
   @IsString()
   status: string;

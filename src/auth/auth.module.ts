@@ -5,21 +5,33 @@ import { EmployeesModule } from 'src/employees/employees.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
-import { JWT_CONSTANT, JWT_EXPIRATION } from 'src/constants/jwt.constant';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EmployeesService } from 'src/employees/employees.service';
+import { LocalStrategy } from './local.strategy';
+import { ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
 
 @Module({
   imports: [
     EmployeesModule,
     PassportModule,
-    JwtModule.register({
-      secret: JWT_CONSTANT,
-      signOptions: { expiresIn: JWT_EXPIRATION as StringValue },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET') as string,
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRATION') as StringValue,
+        },
+      }),
     }),
   ],
-  providers: [AuthService, EmployeesService, JwtStrategy, PrismaService],
+  providers: [
+    AuthService,
+    EmployeesService,
+    LocalStrategy,
+    JwtStrategy,
+    PrismaService,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

@@ -1,7 +1,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,6 +13,8 @@ model Employee {
   employeeId  String   @unique @map("employee_id")
   firstName   String? @map("first_name")
   lastName    String? @map("last_name")
+  gender      Gender?
+  dateOfBirth DateTime @map("date_of_birth")
   email       String   @unique
   password    String
   phone       String?
@@ -24,10 +25,12 @@ model Employee {
   terminationDate DateTime? @map("termination_date")
 
   roleId       Int  @map("role_id")
+  designationId Int @map("designation_id")
   departmentId Int  @map("department_id")
 
-  department  Department @relation(fields: [departmentId], references: [id])
   role       Role @relation(fields: [roleId], references: [id])
+  designation   Designation? @relation(fields: [designationId], references: [id])
+  department  Department @relation(fields: [departmentId], references: [id])
 
   leaves      Leave[]
 
@@ -49,12 +52,27 @@ model Role {
   @@map("roles")
 }
 
+model Designation {
+  id           Int         @id @default(autoincrement())
+  title        String      
+  departmentId Int
+  department   Department  @relation(fields: [departmentId], references: [id])
+  employees    Employee[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([title, departmentId])
+  @@map("designations")
+}
+
 model Department {
   id        Int      @id @default(autoincrement())
   name      String
   code      String   @unique
 
   employees Employee[]
+  designations Designation[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -68,10 +86,10 @@ model Leave {
   startDate   DateTime  @map("start_date")
   endDate     DateTime  @map("end_date")
   reason      String
-  status      LeaveStatus @default(PENDING)
+  status      LeaveStatus @default(Pending)
 
-  employeeId  Int   @map("employee_id")
-  employee    Employee @relation(fields: [employeeId], references: [id])
+  employeeId  String   @map("employee_id")
+  employee    Employee @relation(fields: [employeeId], references: [employeeId])
 
   leaveTypeId Int   @map("leave_type_id")
   leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
@@ -84,7 +102,7 @@ model Leave {
 
 model LeaveType {
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String  @unique
   description String?
   maxDays     Int?    @map("max_days")
 
@@ -96,23 +114,31 @@ model LeaveType {
 
 model LeaveRequirement {
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String  
+  uploadRequired Boolean @map("upload_required") @default(false)
   leaveTypeId Int      @map("leave_type_id")
 
   leaveType   LeaveType    @relation(fields: [leaveTypeId], references: [id])
+
+  @@unique([name, leaveTypeId])
 
   @@map("leave_requirements")
 }
 
 enum LeaveStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  CANCELLED
+  Pending
+  Approved
+  Rejected
+  Cancelled
 }
 
 enum EmploymentStatus {
   Active
   Suspended
   Terminated
+}
+
+enum Gender {
+  Male
+  Female
 }

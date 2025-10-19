@@ -1,0 +1,7 @@
+### Get Roles
+GET http://localhost:3000/api/v1/roles
+Content-Type: application/json
+
+### Get Role by ID
+GET http://localhost:3000/api/v1/roles/1
+Content-Type: application/json

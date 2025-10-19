@@ -1,30 +1,31 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JWT_CONSTANT } from '../constants/jwt.constant';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { IJWTPayload } from './auth.interface';
+import { ConfigService } from '@nestjs/config';
 // import { Employee } from 'prisma/prisma-clients/admin';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly prisma: PrismaService) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+  constructor(
+    private readonly prisma: PrismaService,
+    private configService: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: JWT_CONSTANT || 'default',
+      secretOrKey: configService.get<string>('JWT_SECRET') as string,
     });
   }
 
-  async validate(payload: { employeeId: string; email: string }) {
-    const employee = await this.prisma.employee.findUnique({
-      where: { employeeId: payload.employeeId, email: payload.email },
-      select: { employeeId: true, email: true, role: true },
-    });
-
-    if (!employee) {
-      throw new UnauthorizedException('Employee not found');
-    }
-
-    return employee;
+  validate(payload: IJWTPayload) {
+    return {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+      designation: payload.designation,
+      permissions: payload.permissions,
+    };
   }
 }
