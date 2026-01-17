@@ -19,12 +19,12 @@ import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('roles')
-// @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Get()
-  // @Permissions('role:read', 'role:manage')
+  @Permissions('role:read', 'role:manage')
   async fetchAll() {
     const roles = await this.rolesService.getRoles();
     return {
@@ -35,7 +35,7 @@ export class RolesController {
   }
 
   @Get(':id')
-  // @Permissions('role:view', 'role:manage')
+  @Permissions('role:view', 'role:manage')
   async fetchById(@Param('id') id: string) {
     console.log(typeof id);
     const role = await this.rolesService.getRoleById(Number(id));
@@ -53,7 +53,7 @@ export class RolesController {
   }
 
   @Post()
-  // @Permissions('role:create', 'role:manage')
+  @Permissions('role:create', 'role:manage')
   async create(@Body() input: createRoleDTO) {
     try {
       const response = await this.rolesService.create(input);
@@ -79,7 +79,7 @@ export class RolesController {
   }
 
   @Put(':id')
-  // @Permissions('role:update', 'role:manage')
+  @Permissions('role:update', 'role:manage')
   async update(
     @Param('id') id: number,
     @Body() input: Partial<Omit<updateRoleDTO, 'id'>>,
@@ -100,7 +100,7 @@ export class RolesController {
   }
 
   @Patch(':id/permissions')
-  // @Permissions('role:assignPermissions', 'role:manage')
+  @Permissions('role:assignPermissions', 'role:manage')
   async assignPermissions(
     @Param('id') id: number,
     @Body() input: Pick<assignPermissionsDTO, 'permissions'>,

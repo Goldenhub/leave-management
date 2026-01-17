@@ -24,19 +24,26 @@ model Employee {
   employmentDate DateTime @map("employment_date")
   terminationDate DateTime? @map("termination_date")
 
-  roleId       Int  @map("role_id")
+  roleId        Int  @map("role_id")
   designationId Int @map("designation_id")
-  departmentId Int  @map("department_id")
+  departmentId  Int  @map("department_id")
+  managerId     String? @map("manager_id")
 
   role       Role @relation(fields: [roleId], references: [id])
   designation   Designation? @relation(fields: [designationId], references: [id])
   department  Department @relation(fields: [departmentId], references: [id])
+  manager  Employee? @relation("Manager",  fields: [managerId], references: [employeeId])
+  reports  Employee[] @relation("Manager") // employees reporting to this person
 
   leaves      Leave[]
+  approvals LeaveApproval[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("employees")
 }
+
 
 model Role {
   id             Int              @id @default(autoincrement())
@@ -63,6 +70,7 @@ model Designation {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([title, departmentId])
+
   @@map("designations")
 }
 
@@ -82,7 +90,6 @@ model Department {
 
 model Leave {
   id          Int      @id @default(autoincrement())
-  type        String
   startDate   DateTime  @map("start_date")
   endDate     DateTime  @map("end_date")
   reason      String
@@ -94,10 +101,32 @@ model Leave {
   leaveTypeId Int   @map("leave_type_id")
   leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
 
+  approvals   LeaveApproval[]
+  attachments LeaveAttachment[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("leaves")
+}
+
+model LeaveApproval {
+  id             Int              @id @default(autoincrement())
+
+  leaveId         Int   @map("leave_id")
+  leave           Leave   @relation(fields: [leaveId], references: [id])
+
+  approverId      String    @map("approver_id")
+  approver        Employee   @relation(fields: [approverId], references: [employeeId])
+
+  level           Int   // 1 = direct manager, 2 = manager's manager
+  decision        ApprovalDecision  @default(Pending)
+  comment         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("leave_approvals")
 }
 
 model LeaveType {
@@ -106,30 +135,46 @@ model LeaveType {
   description String?
   maxDays     Int?    @map("max_days")
 
-  leaves      Leave[]
-  leaveRequirements LeaveRequirement[]
+  leaves        Leave[]
+  requirements  LeaveRequirement[]
 
   @@map("leave_types")
 }
 
 model LeaveRequirement {
-  id          Int      @id @default(autoincrement())
-  name        String  
-  uploadRequired Boolean @map("upload_required") @default(false)
-  leaveTypeId Int      @map("leave_type_id")
+  id              Int      @id @default(autoincrement())
+  type            RequirementType
+  value           String
 
-  leaveType   LeaveType    @relation(fields: [leaveTypeId], references: [id])
+  leaveTypeId     Int          @map("leave_type_id")
+  leaveType       LeaveType    @relation(fields: [leaveTypeId], references: [id])
 
-  @@unique([name, leaveTypeId])
+  @@unique([type, leaveTypeId])
 
   @@map("leave_requirements")
+}
+
+model LeaveAttachment {
+  id              Int      @id @default(autoincrement())
+  leaveId         Int     @map("leave_id")
+  leave           Leave   @relation(fields: [leaveId], references: [id])
+  type            String // eg. HOSPITAL_REPORT
+  url             String
+
+  @@map("leave_attachments")
+}
+
+enum RequirementType {
+  DOCUMENT
+  MIN_SERVICE
+  OTHER
 }
 
 enum LeaveStatus {
   Pending
   Approved
   Rejected
-  Cancelled
+  Canceled
 }
 
 enum EmploymentStatus {
@@ -141,4 +186,10 @@ enum EmploymentStatus {
 enum Gender {
   Male
   Female
+}
+
+enum ApprovalDecision {
+  Pending
+  Approved
+  Rejected
 }

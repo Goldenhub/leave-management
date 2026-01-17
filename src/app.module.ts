@@ -12,6 +12,8 @@ import { RolesController } from './roles/roles.controller';
 import { RolesModule } from './roles/roles.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { ConfigModule } from '@nestjs/config';
+import { LeaveTypeModule } from './leave-type/leave-type.module';
+import { UploaderModule } from './uploader/uploader.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { ConfigModule } from '@nestjs/config';
     DepartmentsModule,
     RolesModule,
     LeavesModule,
+    LeaveTypeModule,
+    UploaderModule,
   ],
   controllers: [EmployeesController, DepartmentsController, RolesController],
   providers: [

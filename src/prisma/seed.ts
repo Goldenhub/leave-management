@@ -111,8 +111,29 @@ async function main() {
     }),
   ]);
 
+  // --- Top level Manager ---
+  const manager = await prisma.employee.create({
+    data: {
+      employeeId: engineering.code + '-00001',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'admin@company.com',
+      password: 'Admin@1234',
+      phone: '08010000001',
+      gender: 'Male',
+      dateOfBirth: new Date('1990-06-15'),
+      address: 'Lagos, Nigeria',
+      departmentId: engineering.id,
+      roleId: superAdminRole.id,
+      designationId: systemAdmin.id,
+      employmentDate: new Date('2020-01-10'),
+      employmentStatus: EmploymentStatus.Active,
+      passwordUpdated: true,
+    },
+  });
+
   // --- Employees ---
-  const [admin, manager, staff] = await prisma.$transaction([
+  const [admin, staff] = await prisma.$transaction([
     prisma.employee.upsert({
       where: {
         employeeId: engineering.code + '-00001',
@@ -137,30 +158,7 @@ async function main() {
       },
       update: {},
     }),
-    prisma.employee.upsert({
-      where: {
-        employeeId: hr.code + '-00001',
-        email: 'manager@company.com',
-      },
-      create: {
-        employeeId: hr.code + '-00002',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'manager@company.com',
-        password: 'Manager@1234',
-        phone: '08010000002',
-        gender: 'Female',
-        dateOfBirth: new Date('1993-02-16'),
-        address: 'Abuja, Nigeria',
-        departmentId: hr.id,
-        roleId: managerRole.id,
-        designationId: hrManager.id,
-        employmentDate: new Date('2021-05-15'),
-        employmentStatus: EmploymentStatus.Active,
-        passwordUpdated: true,
-      },
-      update: {},
-    }),
+
     prisma.employee.upsert({
       where: {
         employeeId: engineering.code + '-00003',
@@ -179,6 +177,7 @@ async function main() {
         departmentId: finance.id,
         roleId: staffRole.id,
         designationId: financialAnalyst.id,
+        managerId: manager.employeeId,
         employmentDate: new Date('2022-03-20'),
         employmentStatus: EmploymentStatus.Active,
         passwordUpdated: true,
@@ -230,46 +229,46 @@ async function main() {
   await prisma.$transaction([
     prisma.leaveRequirement.upsert({
       where: {
-        name_leaveTypeId: {
-          name: 'Minimum 6 months of service',
+        type_leaveTypeId: {
+          type: 'MIN_SERVICE',
           leaveTypeId: annualLeave.id,
         },
       },
       create: {
-        name: 'Minimum 6 months of service',
+        type: 'MIN_SERVICE',
+        value: '6',
         leaveTypeId: annualLeave.id,
       },
       update: {},
     }),
     prisma.leaveRequirement.upsert({
       where: {
-        name_leaveTypeId: {
-          name: 'exam timetable or study proof',
+        type_leaveTypeId: {
+          type: 'DOCUMENT',
           leaveTypeId: examStudyLeave.id,
         },
       },
       create: {
-        uploadRequired: true,
-        name: 'exam timetable or study proof',
+        type: 'DOCUMENT',
+        value: 'exam timetable or study proof',
         leaveTypeId: examStudyLeave.id,
       },
       update: {},
     }),
   ]);
 
-  // --- Sample Leave Request ---
+  // // --- Sample Leave Request ---
 
-  await prisma.leave.create({
-    data: {
-      type: 'Annual Leave',
-      startDate: new Date('2025-12-01'),
-      endDate: new Date('2025-12-10'),
-      reason: 'Family vacation',
-      status: LeaveStatus.Pending as LeaveStatus,
-      employeeId: staff.employeeId,
-      leaveTypeId: annualLeave.id,
-    },
-  });
+  // await prisma.leave.create({
+  //   data: {
+  //     startDate: new Date('2025-12-01'),
+  //     endDate: new Date('2025-12-10'),
+  //     reason: 'Family vacation',
+  //     status: LeaveStatus.Pending as LeaveStatus,
+  //     employeeId: staff.employeeId,
+  //     leaveTypeId: annualLeave.id,
+  //   },
+  // });
 
   console.log('✅ Seeding completed!');
 }
