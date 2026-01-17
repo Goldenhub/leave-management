@@ -14,7 +14,6 @@ export class UploaderService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   async uploadFile(
     file: Express.Multer.File,
     leaveTypeId: number,
