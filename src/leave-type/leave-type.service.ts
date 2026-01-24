@@ -4,6 +4,14 @@ import { CreateLeaveTypeDto } from './dto/leave-type.dto';
 
 @Injectable()
 export class LeaveTypeService {
+  async getLeaveTypes() {
+    return prisma.leaveType.findMany({
+      include: {
+        requirements: true,
+      },
+    });
+  }
+
   /**
    * Creates a leave type with the requirements
    *
