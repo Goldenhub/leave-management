@@ -29,6 +29,6 @@ export class CreateLeaveRequirementDto {
   })
   type: LeaveRequirementType;
 
-  @IsBoolean()
+  @IsString()
   value: string;
 }
