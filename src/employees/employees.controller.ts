@@ -18,6 +18,7 @@ import { generateMenu } from 'src/utils/helpers.util';
 import { MenuConfig } from 'src/utils/menu.config';
 import type { Employee } from '@prisma/client';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
+import type { IAuthEmployee } from './interface/employee.interface';
 
 @Controller('employees')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -67,11 +68,9 @@ export class EmployeesController {
   }
 
   @Get('menu')
-  async getMenu(@CurrentUser() employee: Employee) {
+  async getMenu(@CurrentUser() employee: IAuthEmployee) {
     console.log(employee);
-    const user = await this.employeeService.getEmployeeById(
-      employee.employeeId,
-    );
+    const user = await this.employeeService.getEmployeeById(employee.id);
 
     if (!user) {
       throw new NotFoundException('Employee not found');
