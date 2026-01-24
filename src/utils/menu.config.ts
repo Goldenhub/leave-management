@@ -17,46 +17,50 @@ export const MenuConfig: MenuLinks[] = [
     label: 'Leaves',
     url: '/leaves',
     icon: 'viewList',
-    permissions: ['leave:view'],
+    permissions: ['leave:view', 'leave:manage'],
     subLinks: [
       {
         label: 'My leaves',
         url: '/my-leaves',
-        permissions: ['leave:view'],
+        permissions: ['leave:view', 'leave:manage'],
       },
-      { label: 'Approvals', url: '/approvals', permissions: ['leave:approve'] },
+      {
+        label: 'Approvals',
+        url: '/approvals',
+        permissions: ['leave:approve', 'leave:manage'],
+      },
     ],
   },
   {
     label: 'Configuration',
     icon: 'gear',
     url: '/configuration',
-    permissions: ['configuration:view'],
+    permissions: ['configuration:view', 'configuration:manage'],
     subLinks: [
       {
         label: 'Leave Types',
         url: '/leave-types',
-        permissions: ['leaveType:view'],
+        permissions: ['leaveType:view', 'leaveType:manage'],
       },
       {
         label: 'Employees',
         url: '/employees',
-        permissions: ['employee:view'],
+        permissions: ['employee:view', 'employee:manage'],
       },
       {
         label: 'Departments',
         url: '/departments',
-        permissions: ['department:view'],
+        permissions: ['department:view', 'department:manage'],
       },
       {
         label: 'Designations',
         url: '/designations',
-        permissions: ['designation:view'],
+        permissions: ['designation:view', 'designation:manage'],
       },
       {
         label: 'Roles & Permissions',
         url: '/roles-permissions',
-        permissions: ['role:view'],
+        permissions: ['role:view', 'role:manage'],
       },
     ],
   },
@@ -64,6 +68,6 @@ export const MenuConfig: MenuLinks[] = [
     label: 'Reports',
     url: '/reports',
     icon: 'chart',
-    permissions: ['report:view'],
+    permissions: ['report:view', 'report:manage'],
   },
 ];

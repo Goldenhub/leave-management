@@ -85,7 +85,7 @@ async function main() {
         name: 'super admin',
         description: 'Full system access',
         permissions:
-          'department:manage,employee:manage,role:manage,profile:view,profile:update,leave:manage,leaveType:manage,report:manage,designation:manage',
+          'dashboard:view,department:manage,employee:manage,role:manage,profile:view,profile:update,leave:manage,leaveType:manage,report:manage,designation:manage,configuration:manage',
       },
       update: {},
     }),
@@ -95,7 +95,7 @@ async function main() {
         name: 'manager',
         description: 'Manages team leaves and approvals',
         permissions:
-          'department:view,department:read,employee:view,employee:read,role:view,role:read,profile:view,profile:update,leave:create,leave:view,leave:read,leave:update,leave:delete,leave:approve,leaveType:view,leaveType:read,report:create,report:update,report:view,report:read',
+          'dashboard:view,department:view,department:read,employee:view,employee:read,role:view,role:read,profile:view,profile:update,leave:create,leave:view,leave:read,leave:update,leave:delete,leave:approve,leaveType:view,leaveType:read,report:create,report:update,report:view,report:read',
       },
       update: {},
     }),
@@ -105,7 +105,7 @@ async function main() {
         name: 'staff',
         description: 'Regular employee role',
         permissions:
-          'department:view,department:read,employee:view,employee:read,profile:view,profile:update,leave:create,leave:view,leave:read,leave:update,leave:delete,leaveType:view,leaveType:read,report:view,report:read,report:create,report:update',
+          'dashboard:view,department:view,department:read,employee:view,employee:read,profile:view,profile:update,leave:create,leave:view,leave:read,leave:update,leave:delete,leaveType:view,leaveType:read,report:view,report:read,report:create,report:update',
       },
       update: {},
     }),
