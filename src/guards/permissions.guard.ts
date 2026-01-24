@@ -7,7 +7,8 @@ import {
 import { Reflector } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 import { Request } from 'express';
-import { Role } from '@prisma/client';
+// import { Role } from '@prisma/client';
+import { IAuthEmployee } from 'src/employees/interface/employee.interface';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -22,13 +23,9 @@ export class PermissionsGuard implements CanActivate {
     if (!requiredPermissions || requiredPermissions.length === 0) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
-    const employee = request.user as {
-      id: string;
-      role: Role;
-      email: string;
-    };
+    const employee = request.user as IAuthEmployee;
 
-    const employeePermissions = employee.role.permissions.split(',');
+    const employeePermissions = employee.permissions;
 
     if (
       !employee ||
