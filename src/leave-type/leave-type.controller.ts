@@ -5,7 +5,7 @@ import { Permissions } from 'src/decorators/permissions.decorator';
 import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('leave-type')
+@Controller('leave-types')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class LeaveTypeController {
   constructor(private leaveTypeService: LeaveTypeService) {}
