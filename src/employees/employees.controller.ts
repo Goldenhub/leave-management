@@ -16,6 +16,8 @@ import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { generateMenu } from 'src/utils/helpers.util';
 import { MenuConfig } from 'src/utils/menu.config';
+import type { Employee } from '@prisma/client';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
 
 @Controller('employees')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -50,6 +52,17 @@ export class EmployeesController {
       statusCode: 200,
       message: 'Employees fetched',
       data: employees,
+    };
+  }
+
+  @Get()
+  getCurrentEmployee(@CurrentUser() employee: Employee) {
+    return {
+      statusCode: 200,
+      message: 'Current employee fetched',
+      data: {
+        ...employee,
+      },
     };
   }
 
@@ -117,15 +130,16 @@ export class EmployeesController {
   }
 
   @Get('menu')
-  async getMenu(@Param('employeeI') employeeId: string) {
-    const employee = await this.employeeService.getEmployeeById(employeeId);
+  async getMenu(@CurrentUser() employee: Employee) {
+    const user = await this.employeeService.getEmployeeById(
+      employee.employeeId,
+    );
 
-    if (!employee) {
+    if (!user) {
       throw new NotFoundException('Employee not found');
     }
 
-    const permissions = employee.role.permissions.split(',');
-
+    const permissions = user.role.permissions.split(',');
     const menu = generateMenu(MenuConfig, permissions);
 
     return {
