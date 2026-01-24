@@ -68,6 +68,7 @@ export class EmployeesController {
 
   @Get('menu')
   async getMenu(@CurrentUser() employee: Employee) {
+    console.log(employee);
     const user = await this.employeeService.getEmployeeById(
       employee.employeeId,
     );
