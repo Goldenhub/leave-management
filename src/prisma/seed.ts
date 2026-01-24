@@ -85,7 +85,7 @@ async function main() {
         name: 'super admin',
         description: 'Full system access',
         permissions:
-          'department:manage,employee:manage,role:manage,profile:view,profile:update,leave:manage,leaveType:manage,report:manage',
+          'department:manage,employee:manage,role:manage,profile:view,profile:update,leave:manage,leaveType:manage,report:manage,designation:manage',
       },
       update: {},
     }),
