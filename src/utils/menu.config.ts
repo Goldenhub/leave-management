@@ -8,12 +8,6 @@ export interface MenuLinks {
 
 export const MenuConfig: MenuLinks[] = [
   {
-    label: 'Overview',
-    url: '/dashboard',
-    icon: 'dashboard',
-    permissions: ['dashboard:view'],
-  },
-  {
     label: 'Leaves',
     url: '/leaves',
     icon: 'viewList',
