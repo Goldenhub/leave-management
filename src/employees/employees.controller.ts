@@ -14,6 +14,8 @@ import { createEmployeeDTO, updateEmployeeDTO } from './dto/employee.dto';
 import { Permissions } from 'src/decorators/permissions.decorator';
 import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { generateMenu } from 'src/utils/helpers.util';
+import { MenuConfig } from 'src/utils/menu.config';
 
 @Controller('employees')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -110,6 +112,27 @@ export class EmployeesController {
       message: 'Role assigned successfully',
       data: {
         ...employee,
+      },
+    };
+  }
+
+  @Get('menu')
+  async getMenu(@Param('employeeI') employeeId: string) {
+    const employee = await this.employeeService.getEmployeeById(employeeId);
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    const permissions = employee.role.permissions.split(',');
+
+    const menu = generateMenu(MenuConfig, permissions);
+
+    return {
+      statusCode: 200,
+      message: 'Menu fetched successfully',
+      data: {
+        menu,
       },
     };
   }
