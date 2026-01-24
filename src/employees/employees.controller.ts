@@ -7,15 +7,21 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { createEmployeeDTO, updateEmployeeDTO } from './dto/employee.dto';
+import { Permissions } from 'src/decorators/permissions.decorator';
+import { PermissionsGuard } from 'src/guards/permissions.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('employees')
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class EmployeesController {
   constructor(private employeeService: EmployeesService) {}
 
   @Post()
+  @Permissions('employee:create', 'employee:manage')
   async create(@Body() input: createEmployeeDTO) {
     console.log('ts');
     const employee = await this.employeeService.create(input);
@@ -34,6 +40,7 @@ export class EmployeesController {
   }
 
   @Get()
+  @Permissions('employee:read', 'employee:manage')
   async fetchAll() {
     const employees = await this.employeeService.getAllEmployees();
 
@@ -45,6 +52,7 @@ export class EmployeesController {
   }
 
   @Get(':employeeId')
+  @Permissions('employee:view', 'employee:manage')
   async fetchByEmployeeId(@Param('employeeId') employeeId: string) {
     const employee = await this.employeeService.getEmployeeById(employeeId);
 
@@ -62,6 +70,7 @@ export class EmployeesController {
   }
 
   @Put(':employeeId')
+  @Permissions('employee:update', 'employee:manage')
   async update(
     @Param('employeeId') employeeId: string,
     @Body() input: updateEmployeeDTO,
@@ -84,6 +93,7 @@ export class EmployeesController {
   }
 
   @Put(':employeeId/role')
+  @Permissions('employee:assignRole', 'employee:manage')
   async assignRole(
     @Param('employeeId') employeeId: string,
     @Body('roleId') roleId: number,

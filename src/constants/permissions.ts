@@ -1,6 +1,14 @@
 export const PERMISSIONS: Record<string, string[]> = {
   department: ['create', 'read', 'view', 'update', 'delete', 'manage'],
-  employee: ['create', 'read', 'view', 'update', 'delete', 'manage'],
+  employee: [
+    'create',
+    'read',
+    'view',
+    'update',
+    'assignRole',
+    'delete',
+    'manage',
+  ],
   role: [
     'create',
     'read',

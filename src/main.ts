@@ -13,6 +13,12 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Leave Management API')
     .setDescription('API documentation for the Leave Management System')
