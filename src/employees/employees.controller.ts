@@ -66,6 +66,28 @@ export class EmployeesController {
     };
   }
 
+  @Get('menu')
+  async getMenu(@CurrentUser() employee: Employee) {
+    const user = await this.employeeService.getEmployeeById(
+      employee.employeeId,
+    );
+
+    if (!user) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    const permissions = user.role.permissions.split(',');
+    const menu = generateMenu(MenuConfig, permissions);
+
+    return {
+      statusCode: 200,
+      message: 'Menu fetched successfully',
+      data: {
+        menu,
+      },
+    };
+  }
+
   @Get(':employeeId')
   @Permissions('employee:view', 'employee:manage')
   async fetchByEmployeeId(@Param('employeeId') employeeId: string) {
@@ -125,28 +147,6 @@ export class EmployeesController {
       message: 'Role assigned successfully',
       data: {
         ...employee,
-      },
-    };
-  }
-
-  @Get('menu')
-  async getMenu(@CurrentUser() employee: Employee) {
-    const user = await this.employeeService.getEmployeeById(
-      employee.employeeId,
-    );
-
-    if (!user) {
-      throw new NotFoundException('Employee not found');
-    }
-
-    const permissions = user.role.permissions.split(',');
-    const menu = generateMenu(MenuConfig, permissions);
-
-    return {
-      statusCode: 200,
-      message: 'Menu fetched successfully',
-      data: {
-        menu,
       },
     };
   }
