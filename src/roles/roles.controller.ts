@@ -28,7 +28,7 @@ export class RolesController {
   async fetchAll() {
     const roles = await this.rolesService.getRoles();
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Roles fetched successfully',
       data: roles,
     };
@@ -41,12 +41,12 @@ export class RolesController {
     const role = await this.rolesService.getRoleById(Number(id));
     if (!role) {
       return {
-        statusCode: 404,
+        statuscode: 404,
         message: 'Role not found',
       };
     }
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Role fetched successfully',
       data: role,
     };
@@ -55,25 +55,17 @@ export class RolesController {
   @Post()
   @Permissions('role:create', 'role:manage')
   async create(@Body() input: createRoleDTO) {
-    try {
-      const response = await this.rolesService.create(input);
-      if (response) {
-        return {
-          statusCode: 201,
-          message: 'Role created successfully',
-          data: response,
-        };
-      } else {
-        return {
-          statusCode: 400,
-          message: 'Role creation failed',
-        };
-      }
-    } catch (error) {
-      console.error(error);
+    const response = await this.rolesService.create(input);
+    if (response) {
       return {
-        statusCode: 500,
-        message: 'Internal server error',
+        statuscode: 201,
+        message: 'Role created successfully',
+        data: response,
+      };
+    } else {
+      return {
+        statuscode: 400,
+        message: 'Role creation failed',
       };
     }
   }
@@ -87,13 +79,13 @@ export class RolesController {
     const response = await this.rolesService.update({ id, ...input });
     if (response) {
       return {
-        statusCode: 200,
+        statuscode: 200,
         message: 'Role updated successfully',
         data: response,
       };
     } else {
       return {
-        statusCode: 400,
+        statuscode: 400,
         message: 'Role update failed',
       };
     }
@@ -111,12 +103,12 @@ export class RolesController {
     });
     if (!response) {
       return {
-        statusCode: 400,
+        statuscode: 400,
         message: 'Assigning permissions failed',
       };
     }
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Permissions assigned successfully',
       data: response,
     };

@@ -19,6 +19,9 @@ export class createEmployeeDTO {
   @ApiProperty()
   @IsNumber()
   designationId: number;
+  @ApiProperty({ required: false })
+  @IsString()
+  managerId?: string;
   @ApiProperty()
   @IsString()
   firstName: string;
@@ -34,12 +37,12 @@ export class createEmployeeDTO {
   @ApiProperty()
   @IsEmail()
   email: string;
+  // @ApiProperty({ required: false })
+  // @IsString()
+  // password: string;
   @ApiProperty({ required: false })
   @IsString()
-  password: string;
-  @ApiProperty({ required: false })
-  @IsString()
-  address: string;
+  address?: string;
   @ApiProperty()
   @IsValidPhoneNumber()
   phone: string;

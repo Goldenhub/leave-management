@@ -1,11 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import prisma from '../prisma/prisma.middleware';
-import { CreateLeaveTypeDto } from './dto/leave-type.dto';
+import { CreateLeaveTypeDto, UpdateLeaveTypeDto } from './dto/leave-type.dto';
 
 @Injectable()
 export class LeaveTypeService {
   async getLeaveTypes() {
     return prisma.leaveType.findMany({
+      include: {
+        requirements: true,
+      },
+    });
+  }
+
+  async getLeaveTypeById(id: string) {
+    return prisma.leaveType.findUnique({
+      where: {
+        id: Number(id),
+      },
       include: {
         requirements: true,
       },
@@ -36,5 +47,39 @@ export class LeaveTypeService {
     });
 
     return leaveType;
+  }
+
+  async updateLeaveType(input: UpdateLeaveTypeDto, id: string) {
+    const leaveType = await prisma.leaveType.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        name: input.name,
+        description: input.description,
+        maxDays: input.maxDays,
+        requirements: input.requirements
+          ? {
+              deleteMany: {},
+              create: input.requirements.map((requirements) => ({
+                ...requirements,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        requirements: true,
+      },
+    });
+
+    return leaveType;
+  }
+
+  async deleteLeaveType(id: string) {
+    await prisma.leaveType.delete({
+      where: {
+        id: Number(id),
+      },
+    });
   }
 }

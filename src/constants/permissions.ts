@@ -1,5 +1,4 @@
 export const PERMISSIONS: Record<string, string[]> = {
-  dashboard: ['view'],
   department: ['create', 'read', 'view', 'update', 'delete', 'manage'],
   designation: ['create', 'read', 'view', 'update', 'delete', 'manage'],
   employee: [

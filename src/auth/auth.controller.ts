@@ -32,7 +32,7 @@ export class AuthController {
     );
 
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Logged in successfully',
       data: {
         ...result,

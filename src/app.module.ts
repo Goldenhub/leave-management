@@ -14,6 +14,9 @@ import { LeavesModule } from './leaves/leaves.module';
 import { ConfigModule } from '@nestjs/config';
 import { LeaveTypeModule } from './leave-type/leave-type.module';
 import { UploaderModule } from './uploader/uploader.module';
+import { DesignationsModule } from './designations/designations.module';
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -27,13 +30,20 @@ import { UploaderModule } from './uploader/uploader.module';
     LeavesModule,
     LeaveTypeModule,
     UploaderModule,
+    DesignationsModule,
   ],
-  controllers: [EmployeesController, DepartmentsController, RolesController],
+  controllers: [
+    EmployeesController,
+    DepartmentsController,
+    RolesController,
+    AppController,
+  ],
   providers: [
     PrismaService,
     EmployeesService,
     DepartmentsService,
     RolesService,
+    AppService,
   ],
 })
 export class AppModule {}

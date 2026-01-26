@@ -22,7 +22,7 @@ export class RolesService {
   }
 
   async create(input: createRoleDTO): Promise<Role> {
-    const permissions = input.permissions.join(',');
+    const permissions = input.permissions;
     const role = await prisma.role.create({
       data: {
         ...input,
@@ -38,6 +38,7 @@ export class RolesService {
       where: { id },
       data: {
         ...data,
+        permissions: data.permissions,
       },
     });
     return role;
@@ -45,11 +46,10 @@ export class RolesService {
 
   async assignPermissions(input: assignPermissionsDTO): Promise<Role> {
     const { id, permissions } = input;
-    const permissionsString = permissions.join(',');
     const role = await prisma.role.update({
       where: { id },
       data: {
-        permissions: permissionsString,
+        permissions,
       },
     });
     return role;

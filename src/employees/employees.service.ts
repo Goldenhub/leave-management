@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import prisma from '../prisma/prisma.middleware';
 import { createEmployeeDTO, updateEmployeeDTO } from './dto/employee.dto';
@@ -37,8 +38,11 @@ export class EmployeesService {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { departmentId, roleId, designationId, ...employeeData } = input;
+    const { departmentId, roleId, designationId, managerId, ...employeeData } =
+      input;
+
+    console.log('id', employeeId);
+
     const employee = await prisma.employee.create({
       data: {
         ...employeeData,
@@ -50,6 +54,7 @@ export class EmployeesService {
         department: { connect: { id: department.id } },
         role: { connect: { id: role.id } },
         designation: { connect: { id: designation.id } },
+        manager: managerId ? { connect: { employeeId: managerId } } : undefined,
       },
     });
 
@@ -79,15 +84,28 @@ export class EmployeesService {
 
   async getAllEmployees() {
     const employees = await prisma.employee.findMany({
-      include: { role: true },
+      include: {
+        role: true,
+        manager: true,
+        designation: true,
+        department: true,
+        reports: true,
+      },
     });
+    console.log(employees);
     return employees;
   }
 
   async getEmployeeById(employeeId: string) {
     const employee = await prisma.employee.findUnique({
       where: { employeeId: employeeId },
-      include: { role: true },
+      include: {
+        role: true,
+        manager: true,
+        designation: true,
+        department: true,
+        reports: true,
+      },
     });
 
     return employee;

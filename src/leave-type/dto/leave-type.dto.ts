@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, ValidateNested } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { LeaveRequirementType } from '../enum/leave-type.enum';
 
 export class CreateLeaveTypeDto {
@@ -15,6 +21,25 @@ export class CreateLeaveTypeDto {
   @ValidateNested({ each: true })
   @Type(() => CreateLeaveRequirementDto)
   requirements: CreateLeaveRequirementDto[];
+}
+
+export class UpdateLeaveTypeDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsNumber()
+  maxDays?: number;
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CreateLeaveRequirementDto)
+  requirements?: CreateLeaveRequirementDto[];
 }
 
 export class CreateLeaveRequirementDto {

@@ -16,10 +16,8 @@ export class createRoleDTO {
   @IsString()
   description?: string;
 
-  @ArrayNotEmpty()
-  @IsArray()
-  @IsString({ each: true })
-  permissions: string[];
+  @IsString()
+  permissions: string;
 }
 
 export class updateRoleDTO {
@@ -34,6 +32,9 @@ export class updateRoleDTO {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsString()
+  permissions?: string;
 }
 
 export class assignPermissionsDTO {
@@ -44,5 +45,5 @@ export class assignPermissionsDTO {
   @ArrayNotEmpty()
   @IsArray()
   @IsString({ each: true })
-  permissions: string[];
+  permissions: string;
 }

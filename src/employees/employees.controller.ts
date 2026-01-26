@@ -36,7 +36,7 @@ export class EmployeesController {
     }
 
     return {
-      statusCode: 201,
+      statuscode: 201,
       message: 'Employee created successfully',
       data: {
         ...employee,
@@ -50,7 +50,7 @@ export class EmployeesController {
     const employees = await this.employeeService.getAllEmployees();
 
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Employees fetched',
       data: employees,
     };
@@ -59,7 +59,7 @@ export class EmployeesController {
   @Get()
   getCurrentEmployee(@CurrentUser() employee: Employee) {
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Current employee fetched',
       data: {
         ...employee,
@@ -69,7 +69,6 @@ export class EmployeesController {
 
   @Get('menu')
   async getMenu(@CurrentUser() employee: IAuthEmployee) {
-    console.log(employee);
     const user = await this.employeeService.getEmployeeById(employee.id);
 
     if (!user) {
@@ -80,7 +79,7 @@ export class EmployeesController {
     const menu = generateMenu(MenuConfig, permissions);
 
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Menu fetched successfully',
       data: {
         menu,
@@ -98,7 +97,7 @@ export class EmployeesController {
     }
 
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Employee found',
       data: {
         ...employee,
@@ -121,7 +120,7 @@ export class EmployeesController {
     }
 
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Employee updated successfully',
       data: {
         ...employee,
@@ -143,7 +142,7 @@ export class EmployeesController {
     }
 
     return {
-      statusCode: 200,
+      statuscode: 200,
       message: 'Role assigned successfully',
       data: {
         ...employee,

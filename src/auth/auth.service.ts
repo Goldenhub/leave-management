@@ -14,7 +14,8 @@ export class AuthService {
 
   async validateEmployee(input: LoginDTO) {
     const employee = await this.employeesService.findByEmail(input.email);
-    if (employee && comparePassword(input.password, employee.password)) {
+    const passwordHash = employee?.password as string;
+    if (employee && comparePassword(input.password, passwordHash)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = employee;
       return result;
