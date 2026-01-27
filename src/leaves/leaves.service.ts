@@ -237,6 +237,7 @@ export class LeavesService {
       },
       include: {
         employee: true,
+        attachments: true,
       },
     });
 

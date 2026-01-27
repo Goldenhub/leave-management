@@ -18,9 +18,15 @@ import { DesignationsModule } from './designations/designations.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { LeaveBalanceModule } from './leave-balance/leave-balance.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads', // URL prefix
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
