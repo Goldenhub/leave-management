@@ -35,3 +35,12 @@ export function hashPassword(password: string) {
 export function comparePassword(password: string, hash: string) {
   return compareSync(password, hash);
 }
+
+export function getDaysCount(startDate: Date, endDate: Date) {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (end < start) return 0;
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+}

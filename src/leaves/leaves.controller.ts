@@ -20,6 +20,7 @@ import { UploaderService } from 'src/uploader/uploader.service';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import type { IAuthEmployee } from 'src/employees/interface/employee.interface';
 import { LeaveStatus } from './enums/leave.enum';
+import { getDaysCount } from 'src/utils/helpers.util';
 
 @Controller('leaves')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -68,13 +69,16 @@ export class LeavesController {
     @CurrentUser() employee: IAuthEmployee,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
+    // Get leave duration
+    const duration = getDaysCount(input.startDate, input.endDate);
+
     // upload files to local folder
-    console.log(typeof input.leaveTypeId);
     const uploadedAttachments = files?.map(async (file) => {
       const result = await this.uploaderService.uploadFile(
         file,
         Number(input.leaveTypeId),
         employee.id,
+        duration,
       );
       return {
         type: file.originalname,
