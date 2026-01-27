@@ -80,3 +80,11 @@ export class updateEmployeeDTO {
   @IsEnum(['Active', 'Suspended', 'Terminated'])
   employmentStatus: EmploymentStatus;
 }
+
+export class UpdatePasswordDto {
+  @IsString()
+  currentPassword: string;
+
+  @IsString()
+  newPassword: string;
+}

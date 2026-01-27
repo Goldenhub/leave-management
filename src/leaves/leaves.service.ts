@@ -12,6 +12,7 @@ import {
 } from './dto/leave.dto';
 import { Employee } from '@prisma/client';
 import { differenceInMonths } from 'date-fns';
+import { LeaveStatus } from './enums/leave.enum';
 
 @Injectable()
 export class LeavesService {
@@ -50,11 +51,11 @@ export class LeavesService {
    * @param input: CreateLeaveDto
    * @returns created leave
    */
-  async createLeave(input: CreateLeaveDto) {
+  async createLeave(employeeId: string, input: CreateLeaveDto) {
     // Get leave types with requirements
     const leaveType = await prisma.leaveType.findUnique({
       where: {
-        id: input.leaveTypeId,
+        id: Number(input.leaveTypeId),
       },
       include: {
         requirements: true,
@@ -71,7 +72,7 @@ export class LeavesService {
         case 'MIN_SERVICE': {
           const staff = await prisma.employee.findUnique({
             where: {
-              employeeId: input.employeeId,
+              employeeId,
             },
           });
           const monthsWorked = differenceInMonths(
@@ -86,6 +87,7 @@ export class LeavesService {
           break;
         }
         case 'DOCUMENT': {
+          console.log(input.attachments);
           if (
             !input.attachments?.some(
               (attachment) => attachment.type === requirement.value,
@@ -102,13 +104,16 @@ export class LeavesService {
 
     // Generate approval chain
     const approvalChain = await this.generateApprovalChain({
-      employeeId: input.employeeId,
+      employeeId,
     });
 
     const { attachments, ...leaveDataWithoutAttachments } = input;
+    console.log(typeof input.leaveTypeId);
     const leave = await prisma.leave.create({
       data: {
         ...leaveDataWithoutAttachments,
+        leaveTypeId: Number(input.leaveTypeId),
+        employeeId,
         approvals: {
           create: approvalChain.map((approval) => ({
             approverId: approval.approverId,
@@ -204,5 +209,19 @@ export class LeavesService {
       leaveId: input.leaveId,
       status: newStatus,
     };
+  }
+
+  async getMyLeaves(employeeId: string, status: LeaveStatus) {
+    const leaves = await prisma.leave.findMany({
+      where: {
+        employeeId,
+        status,
+      },
+      include: {
+        leaveType: true,
+      },
+    });
+
+    return leaves;
   }
 }

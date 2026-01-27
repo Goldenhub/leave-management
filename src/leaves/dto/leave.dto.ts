@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { ApprovalDecision, LeaveStatus } from '../enums/leave.enum';
+import { ApprovalDecision } from '../enums/leave.enum';
 
 export class GenerateApprovalChainDto {
   @IsString()
@@ -23,8 +23,8 @@ export class LeaveAttachmentDto {
 }
 
 export class CreateLeaveDto {
-  @IsNumber()
-  leaveTypeId: number;
+  @IsString()
+  leaveTypeId: string;
 
   @Type(() => Date)
   @IsDate()
@@ -37,13 +37,10 @@ export class CreateLeaveDto {
   @IsString()
   reason: string;
 
-  @IsEnum(LeaveStatus, {
-    message: 'type must be Pending, Approved, Rejected, Canceled',
-  })
-  status: LeaveStatus;
-
-  @IsNumber()
-  employeeId: string;
+  // @IsEnum(LeaveStatus, {
+  //   message: 'type must be Pending, Approved, Rejected, Canceled',
+  // })
+  // status?: LeaveStatus;
 
   @IsOptional()
   @IsArray()

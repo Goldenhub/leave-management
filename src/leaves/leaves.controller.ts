@@ -2,8 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Post,
   Put,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -15,6 +17,9 @@ import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploaderService } from 'src/uploader/uploader.service';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
+import type { IAuthEmployee } from 'src/employees/interface/employee.interface';
+import { LeaveStatus } from './enums/leave.enum';
 
 @Controller('leaves')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -23,6 +28,21 @@ export class LeavesController {
     private leaveService: LeavesService,
     private uploaderService: UploaderService,
   ) {}
+
+  @Get('own')
+  @Permissions('leave:read', 'leave:manage')
+  async getMyLeaves(
+    @CurrentUser() employee: IAuthEmployee,
+    @Query('status') status: LeaveStatus,
+  ) {
+    const myLeaves = await this.leaveService.getMyLeaves(employee.id, status);
+
+    return {
+      statuscode: 200,
+      message: 'Fetched leaves successfully',
+      data: myLeaves,
+    };
+  }
 
   @Post()
   @Permissions('leave:create', 'leave:manage')
@@ -45,14 +65,16 @@ export class LeavesController {
   )
   async createLeave(
     @Body() input: CreateLeaveDto,
+    @CurrentUser() employee: IAuthEmployee,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     // upload files to local folder
+    console.log(typeof input.leaveTypeId);
     const uploadedAttachments = files?.map(async (file) => {
       const result = await this.uploaderService.uploadFile(
         file,
-        input.leaveTypeId,
-        input.employeeId,
+        Number(input.leaveTypeId),
+        employee.id,
       );
       return {
         type: file.originalname,
@@ -62,7 +84,7 @@ export class LeavesController {
 
     const attachments = await Promise.all(uploadedAttachments);
 
-    const leave = await this.leaveService.createLeave({
+    const leave = await this.leaveService.createLeave(employee.id, {
       ...input,
       attachments,
     });

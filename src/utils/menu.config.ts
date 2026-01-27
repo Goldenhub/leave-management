@@ -29,32 +29,62 @@ export const MenuConfig: MenuLinks[] = [
     label: 'Configuration',
     icon: 'gear',
     url: '/configuration',
-    permissions: ['configuration:view', 'configuration:manage'],
+    permissions: [
+      'configuration:create',
+      'configuration:update',
+      'configuration:delete',
+      'configuration:manage',
+    ],
     subLinks: [
       {
         label: 'Leave Types',
         url: '/leave-types',
-        permissions: ['leaveType:view', 'leaveType:manage'],
+        permissions: [
+          'leaveType:create',
+          'leaveType:update',
+          'leaveType:delete',
+          'leaveType:manage',
+        ],
       },
       {
         label: 'Employees',
         url: '/employees',
-        permissions: ['employee:view', 'employee:manage'],
+        permissions: [
+          'employee:create',
+          'employee:update',
+          'employee:delete',
+          'employee:manage',
+        ],
       },
       {
         label: 'Departments',
         url: '/departments',
-        permissions: ['department:view', 'department:manage'],
+        permissions: [
+          'department:create',
+          'department:update',
+          'department:delete',
+          'department:manage',
+        ],
       },
       {
         label: 'Designations',
         url: '/designations',
-        permissions: ['designation:view', 'designation:manage'],
+        permissions: [
+          'designation:create',
+          'designation:update',
+          'designation:delete',
+          'designation:manage',
+        ],
       },
       {
         label: 'Roles & Permissions',
         url: '/roles-permissions',
-        permissions: ['role:view', 'role:manage'],
+        permissions: [
+          'role:create',
+          'role:update',
+          'role:delete',
+          'role:manage',
+        ],
       },
     ],
   },
@@ -62,6 +92,13 @@ export const MenuConfig: MenuLinks[] = [
     label: 'Reports',
     url: '/reports',
     icon: 'chart',
-    permissions: ['report:view', 'report:manage'],
+    permissions: [
+      'report:create',
+      'report:view',
+      'report:read',
+      'report:update',
+      'report:delete',
+      'report:manage',
+    ],
   },
 ];

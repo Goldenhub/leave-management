@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import prisma from '../prisma/prisma.middleware';
-import { createEmployeeDTO, updateEmployeeDTO } from './dto/employee.dto';
+import {
+  createEmployeeDTO,
+  updateEmployeeDTO,
+  UpdatePasswordDto,
+} from './dto/employee.dto';
+import { comparePassword } from 'src/utils/helpers.util';
 
 @Injectable()
 export class EmployeesService {
@@ -41,12 +46,13 @@ export class EmployeesService {
     const { departmentId, roleId, designationId, managerId, ...employeeData } =
       input;
 
-    console.log('id', employeeId);
+    const password = `${input.firstName[0].toUpperCase()}${input.firstName.slice(1).toLowerCase()}.${input.lastName.toLowerCase()}@1234`;
 
     const employee = await prisma.employee.create({
       data: {
         ...employeeData,
         email,
+        password,
         employeeId,
         employmentDate: new Date(input.employmentDate),
         dateOfBirth: new Date(input.dateOfBirth),
@@ -130,5 +136,35 @@ export class EmployeesService {
     const employeeId = `${departmentCode}-${count}`;
 
     return employeeId;
+  }
+
+  async updatePassword(employeeId: string, input: UpdatePasswordDto) {
+    const employee = await prisma.employee.findUnique({
+      where: { employeeId: employeeId },
+    });
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    if (!comparePassword(input.currentPassword, employee.password as string)) {
+      throw new NotFoundException('Current password is incorrect');
+    }
+
+    const updatedEmployee = await prisma.employee.update({
+      where: { employeeId: employeeId },
+      data: {
+        password: input.newPassword,
+        passwordUpdated: true,
+      },
+    });
+
+    return {
+      statuscode: 200,
+      message: 'Password updated successfully',
+      data: {
+        id: updatedEmployee.employeeId,
+      },
+    };
   }
 }

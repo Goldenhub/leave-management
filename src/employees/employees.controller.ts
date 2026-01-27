@@ -5,18 +5,22 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
-import { createEmployeeDTO, updateEmployeeDTO } from './dto/employee.dto';
+import {
+  createEmployeeDTO,
+  updateEmployeeDTO,
+  UpdatePasswordDto,
+} from './dto/employee.dto';
 import { Permissions } from 'src/decorators/permissions.decorator';
 import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { generateMenu } from 'src/utils/helpers.util';
 import { MenuConfig } from 'src/utils/menu.config';
-import type { Employee } from '@prisma/client';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import type { IAuthEmployee } from './interface/employee.interface';
 
@@ -57,7 +61,7 @@ export class EmployeesController {
   }
 
   @Get()
-  getCurrentEmployee(@CurrentUser() employee: Employee) {
+  getCurrentEmployee(@CurrentUser() employee: IAuthEmployee) {
     return {
       statuscode: 200,
       message: 'Current employee fetched',
@@ -144,6 +148,29 @@ export class EmployeesController {
     return {
       statuscode: 200,
       message: 'Role assigned successfully',
+      data: {
+        ...employee,
+      },
+    };
+  }
+
+  @Patch('update-password')
+  @Permissions('profile:update')
+  async updatePassword(
+    @CurrentUser() currentUser: IAuthEmployee,
+    @Body() input: UpdatePasswordDto,
+  ) {
+    const employee = await this.employeeService.updatePassword(
+      currentUser.id,
+      input,
+    );
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    return {
+      statuscode: 200,
+      message: 'Password updated successfully',
       data: {
         ...employee,
       },
