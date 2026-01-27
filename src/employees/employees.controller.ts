@@ -60,6 +60,18 @@ export class EmployeesController {
     };
   }
 
+  @Get('managers')
+  @Permissions('employee:read', 'employee:manage')
+  async fetchManagers() {
+    const managers = await this.employeeService.getManagers();
+
+    return {
+      statuscode: 200,
+      message: 'Managers fetched',
+      data: managers,
+    };
+  }
+
   @Get()
   getCurrentEmployee(@CurrentUser() employee: IAuthEmployee) {
     return {
@@ -160,11 +172,11 @@ export class EmployeesController {
     @CurrentUser() currentUser: IAuthEmployee,
     @Body() input: UpdatePasswordDto,
   ) {
-    const employee = await this.employeeService.updatePassword(
+    const employeeId = await this.employeeService.updatePassword(
       currentUser.id,
       input,
     );
-    if (!employee) {
+    if (!employeeId) {
       throw new NotFoundException('Employee not found');
     }
 
@@ -172,7 +184,7 @@ export class EmployeesController {
       statuscode: 200,
       message: 'Password updated successfully',
       data: {
-        ...employee,
+        id: employeeId,
       },
     };
   }

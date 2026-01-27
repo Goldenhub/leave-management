@@ -45,6 +45,19 @@ export class LeavesController {
     };
   }
 
+  @Get('pending')
+  @Permissions('leave:approve', 'leave:manage')
+  async getLeavesPendingMyApprovals(@CurrentUser() employee: IAuthEmployee) {
+    const pendingApprovals =
+      await this.leaveService.getLeavesPendingMyApprovals(employee.id);
+
+    return {
+      statuscode: 200,
+      message: 'Pending leaves retrieved',
+      data: pendingApprovals,
+    };
+  }
+
   @Post()
   @Permissions('leave:create', 'leave:manage')
   @UseInterceptors(

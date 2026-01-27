@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import prisma from '../prisma/prisma.middleware';
 import {
   createEmployeeDTO,
@@ -12,6 +16,19 @@ import { comparePassword } from 'src/utils/helpers.util';
 export class EmployeesService {
   async create(input: createEmployeeDTO) {
     const email = input.email?.trim()?.toLowerCase();
+
+    const employeeWithSameFieldsExists = await prisma.employee.findMany({
+      where: {
+        OR: [
+          { email: input.email },
+          { firstName: input.firstName, lastName: input.lastName },
+        ],
+      },
+    });
+
+    if (employeeWithSameFieldsExists.length) {
+      throw new ConflictException('Employee with same details already exists');
+    }
 
     const department = await prisma.department.findFirst({
       where: { id: input.departmentId },
@@ -57,9 +74,9 @@ export class EmployeesService {
         employmentDate: new Date(input.employmentDate),
         dateOfBirth: new Date(input.dateOfBirth),
         employmentStatus: input.employmentStatus,
-        department: { connect: { id: department.id } },
-        role: { connect: { id: role.id } },
-        designation: { connect: { id: designation.id } },
+        department: { connect: { id: Number(department.id) } },
+        role: { connect: { id: Number(role.id) } },
+        designation: { connect: { id: Number(designation.id) } },
         manager: managerId ? { connect: { employeeId: managerId } } : undefined,
       },
     });
@@ -159,12 +176,18 @@ export class EmployeesService {
       },
     });
 
-    return {
-      statuscode: 200,
-      message: 'Password updated successfully',
-      data: {
-        id: updatedEmployee.employeeId,
+    return updatedEmployee.employeeId;
+  }
+
+  async getManagers() {
+    const managers = await prisma.employee.findMany({
+      where: {
+        role: {
+          name: 'Manager',
+        },
       },
-    };
+    });
+
+    return managers;
   }
 }

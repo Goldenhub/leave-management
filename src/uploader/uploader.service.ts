@@ -32,18 +32,24 @@ export class UploaderService {
     }
     // Generate a unique filename
     const timestamp = Date.now();
-    const filename = `${timestamp}-${file.originalname}`;
+    const ext = file.mimetype.split('/')[1];
+    const filename = `${timestamp}-${file.originalname}.${ext}`;
 
     // Save file to local folder
-    const filepath = join(
+    const dirPath = join(
       this.uploadPath,
       leaveType?.name as string,
       employeeId,
-      filename,
     );
-    writeFileSync(filepath, file.buffer);
+    if (!existsSync(dirPath)) {
+      mkdirSync(dirPath, { recursive: true });
+    }
+    const filePath = join(dirPath, filename);
+    writeFileSync(filePath, file.buffer);
 
     // Return file path (you can adjust to return a URL for serving)
-    return { url: `/uploads/${leaveType?.name}/${employeeId}/${filename}` };
+    return {
+      url: `/uploads/${leaveType?.name}/${employeeId}/${filename}`,
+    };
   }
 }

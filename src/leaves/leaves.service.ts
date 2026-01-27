@@ -224,4 +224,22 @@ export class LeavesService {
 
     return leaves;
   }
+
+  async getLeavesPendingMyApprovals(employeeId: string) {
+    const pendingApprovals = await prisma.leave.findMany({
+      where: {
+        status: 'Pending',
+        approvals: {
+          some: {
+            approverId: employeeId,
+          },
+        },
+      },
+      include: {
+        employee: true,
+      },
+    });
+
+    return pendingApprovals;
+  }
 }

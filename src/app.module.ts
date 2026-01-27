@@ -17,6 +17,7 @@ import { UploaderModule } from './uploader/uploader.module';
 import { DesignationsModule } from './designations/designations.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { LeaveBalanceModule } from './leave-balance/leave-balance.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AppController } from './app.controller';
     LeaveTypeModule,
     UploaderModule,
     DesignationsModule,
+    LeaveBalanceModule,
   ],
   controllers: [
     EmployeesController,
