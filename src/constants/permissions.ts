@@ -21,6 +21,7 @@ export const PERMISSIONS: Record<string, string[]> = {
   ],
   profile: ['view', 'update'],
   leave: ['create', 'read', 'view', 'update', 'delete', 'approve', 'manage'],
+  'leave-balance': ['manage'],
   leaveType: ['create', 'read', 'view', 'update', 'delete', 'manage'],
   report: ['create', 'read', 'view', 'update', 'delete', 'manage'],
 };

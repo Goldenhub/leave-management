@@ -4,6 +4,6 @@ import { LeaveBalanceController } from './leave-balance.controller';
 
 @Module({
   providers: [LeaveBalanceService],
-  controllers: [LeaveBalanceController]
+  controllers: [LeaveBalanceController],
 })
 export class LeaveBalanceModule {}

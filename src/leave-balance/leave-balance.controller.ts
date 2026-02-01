@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { LeaveBalanceService } from './leave-balance.service';
 import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -26,6 +26,16 @@ export class LeaveBalanceController {
       statuscode: 200,
       message: 'Fetched balances successfully',
       data: balances,
+    };
+  }
+
+  @Post('update-now')
+  @Permissions('leave-balance:manage')
+  async triggerUpdate() {
+    await this.leaveBalanceService.triggerUpdate();
+    return {
+      statuscode: 200,
+      message: 'Leave balances updated successfully',
     };
   }
 }

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { PrismaService } from './prisma/prisma.service';
 import { EmployeesService } from './employees/employees.service';
@@ -23,6 +24,7 @@ import { join } from 'path';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // URL prefix
