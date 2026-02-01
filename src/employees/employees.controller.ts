@@ -32,9 +32,7 @@ export class EmployeesController {
   @Post()
   @Permissions('employee:create', 'employee:manage')
   async create(@Body() input: createEmployeeDTO) {
-    console.log('ts');
     const employee = await this.employeeService.create(input);
-    console.log('tt');
     if (!employee) {
       throw new InternalServerErrorException('Error creating employee');
     }

@@ -1,6 +1,7 @@
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 
 import type { MenuLinks } from './menu.config';
+import { differenceInBusinessDays } from 'date-fns';
 
 export function generateMenu(
   menuConfig: MenuLinks[],
@@ -41,6 +42,5 @@ export function getDaysCount(startDate: Date, endDate: Date) {
   const start = new Date(startDate);
   const end = new Date(endDate);
   if (end < start) return 0;
-  const diffTime = Math.abs(end.getTime() - start.getTime());
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  return differenceInBusinessDays(end, start) + 1;
 }

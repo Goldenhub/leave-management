@@ -37,7 +37,6 @@ export class RolesController {
   @Get(':id')
   @Permissions('role:view', 'role:manage')
   async fetchById(@Param('id') id: string) {
-    console.log(typeof id);
     const role = await this.rolesService.getRoleById(Number(id));
     if (!role) {
       return {

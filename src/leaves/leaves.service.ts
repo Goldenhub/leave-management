@@ -11,11 +11,15 @@ import {
   GenerateApprovalChainDto,
 } from './dto/leave.dto';
 import { Employee } from '@prisma/client';
-import { differenceInMonths } from 'date-fns';
+import { differenceInBusinessDays, differenceInMonths } from 'date-fns';
 import { LeaveStatus } from './enums/leave.enum';
 
 @Injectable()
 export class LeavesService {
+  async getLeaves() {
+    return prisma.leave.findMany();
+  }
+
   async generateApprovalChain(input: GenerateApprovalChainDto) {
     const chain: { approverId: string; level: number }[] = [];
     let level = 1;
@@ -87,7 +91,6 @@ export class LeavesService {
           break;
         }
         case 'DOCUMENT': {
-          console.log(input.attachments);
           if (
             !input.attachments?.some(
               (attachment) => attachment.type === requirement.value,
@@ -108,7 +111,6 @@ export class LeavesService {
     });
 
     const { attachments, ...leaveDataWithoutAttachments } = input;
-    console.log(typeof input.leaveTypeId);
     const leave = await prisma.leave.create({
       data: {
         ...leaveDataWithoutAttachments,
@@ -133,6 +135,38 @@ export class LeavesService {
       },
     });
 
+    const duration =
+      differenceInBusinessDays(
+        new Date(input.endDate),
+        new Date(input.startDate),
+      ) + 1;
+
+    // create leave balance
+    await prisma.leaveBalance.create({
+      data: {
+        employeeId: employeeId,
+        leaveTypeId: Number(input.leaveTypeId),
+        year: new Date().getFullYear(),
+        allocatedDays: duration,
+        usedDays: 0,
+        remainingDays: duration,
+      },
+    });
+
+    return leave;
+  }
+
+  async cancelLeave(leaveId: number, employeeId: string) {
+    const leave = await prisma.leave.update({
+      where: {
+        id: Number(leaveId),
+        employeeId,
+      },
+      data: {
+        status: 'Canceled',
+      },
+    });
+
     return leave;
   }
 
@@ -143,11 +177,12 @@ export class LeavesService {
    * @returns Leave id and status
    */
   async approveLeave(
+    leaveId: number,
     input: ApproveLeaveDto,
   ): Promise<{ leaveId: number; status: string }> {
     const leave = await prisma.leave.findUnique({
       where: {
-        id: input.leaveId,
+        id: Number(leaveId),
       },
       include: {
         approvals: true,
@@ -180,7 +215,7 @@ export class LeavesService {
 
     const allApprovals = await prisma.leaveApproval.findMany({
       where: {
-        leaveId: input.leaveId,
+        leaveId: Number(leaveId),
       },
     });
 
@@ -197,7 +232,7 @@ export class LeavesService {
     if (newStatus !== leave.status) {
       await prisma.leave.update({
         where: {
-          id: input.leaveId,
+          id: Number(leaveId),
         },
         data: {
           status: newStatus,
@@ -206,7 +241,7 @@ export class LeavesService {
     }
 
     return {
-      leaveId: input.leaveId,
+      leaveId: Number(leaveId),
       status: newStatus,
     };
   }
@@ -219,6 +254,16 @@ export class LeavesService {
       },
       include: {
         leaveType: true,
+        approvals: {
+          include: {
+            approver: {
+              include: {
+                department: true,
+                designation: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -238,9 +283,34 @@ export class LeavesService {
       include: {
         employee: true,
         attachments: true,
+        approvals: true,
       },
     });
 
-    return pendingApprovals;
+    const result = pendingApprovals
+      .map((pendingApproval) => {
+        return {
+          ...pendingApproval,
+          approvals: pendingApproval.approvals.filter((approval) => {
+            const previousLevel = approval.level - 1;
+            if (
+              (approval.approverId === employeeId &&
+                previousLevel !== 0 &&
+                pendingApproval.approvals[previousLevel - 1].decision ===
+                  'Approved') ||
+              (approval.approverId === employeeId &&
+                approval.level === 1 &&
+                pendingApproval.approvals[0].decision === 'Pending')
+            ) {
+              return true;
+            } else {
+              return false;
+            }
+          }),
+        };
+      })
+      .filter((pendingApproval) => pendingApproval.approvals.length > 0);
+
+    return result;
   }
 }

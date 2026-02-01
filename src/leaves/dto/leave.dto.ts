@@ -1,12 +1,5 @@
 import { Type } from 'class-transformer';
-import {
-  IsArray,
-  IsDate,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
 import { ApprovalDecision } from '../enums/leave.enum';
 
 export class GenerateApprovalChainDto {
@@ -50,9 +43,6 @@ export class CreateLeaveDto {
 export class ApproveLeaveDto {
   @IsString()
   approverId: string;
-
-  @IsNumber()
-  leaveId: number;
 
   @IsEnum(ApprovalDecision, {
     message: 'type must be Pending, Approved, Rejected',

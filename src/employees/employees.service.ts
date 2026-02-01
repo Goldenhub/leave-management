@@ -87,18 +87,28 @@ export class EmployeesService {
   }
 
   async updateEmployee(employeeId: string, input: Partial<updateEmployeeDTO>) {
-    const employee = await prisma.employee.findUnique({
-      where: { employeeId: employeeId },
-    });
+    const { departmentId, roleId, designationId, managerId, ...employeeData } =
+      input;
+    // const employee = await prisma.employee.findUnique({
+    //   where: { employeeId: employeeId },
+    // });
 
-    if (!employee) {
-      throw new NotFoundException('Employee not found');
-    }
+    // if (!employee) {
+    //   throw new NotFoundException('Employee not found');
+    // }
 
     const updatedEmployee = await prisma.employee.update({
       where: { employeeId: employeeId },
       data: {
-        ...input,
+        ...employeeData,
+        email: input.email,
+        employmentDate: new Date(input.employmentDate as string),
+        dateOfBirth: new Date(input.dateOfBirth as string),
+        employmentStatus: input.employmentStatus,
+        department: { connect: { id: Number(departmentId) } },
+        role: { connect: { id: Number(roleId) } },
+        designation: { connect: { id: Number(designationId) } },
+        manager: managerId ? { connect: { employeeId: managerId } } : undefined,
       },
     });
 
@@ -115,7 +125,6 @@ export class EmployeesService {
         reports: true,
       },
     });
-    console.log(employees);
     return employees;
   }
 

@@ -54,32 +54,7 @@ export class createEmployeeDTO {
   employmentStatus: EmploymentStatus;
 }
 
-export class updateEmployeeDTO {
-  @ApiProperty()
-  @IsNumber()
-  departmentId: number;
-  @ApiProperty()
-  @IsNumber()
-  roleId: number;
-  @ApiProperty()
-  @IsNumber()
-  designationId: number;
-  @ApiProperty()
-  @IsString()
-  firstName: string;
-  @ApiProperty()
-  @IsString()
-  lastName: string;
-  @ApiProperty({ required: false })
-  @IsString()
-  address: string;
-  @ApiProperty()
-  @IsString()
-  employmentDate: string;
-  @ApiProperty()
-  @IsEnum(['Active', 'Suspended', 'Terminated'])
-  employmentStatus: EmploymentStatus;
-}
+export class updateEmployeeDTO extends createEmployeeDTO {}
 
 export class UpdatePasswordDto {
   @IsString()

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import prisma from '../prisma/prisma.middleware';
@@ -30,6 +34,23 @@ export class UploaderService {
         `This leave has a maximum days of ${leaveType?.maxDays}`,
       );
     }
+
+    const existingLeaveOfSameType = await prisma.leave.findFirst({
+      where: {
+        employeeId,
+        leaveTypeId: Number(leaveTypeId),
+        status: {
+          in: ['Pending', 'Approved'],
+        },
+      },
+    });
+
+    if (existingLeaveOfSameType) {
+      throw new ConflictException(
+        'You cannot apply for same leave type when there is one that is pending or approved',
+      );
+    }
+
     // Generate a unique filename
     const timestamp = Date.now();
     const ext = file.mimetype.split('/')[1];

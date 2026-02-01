@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -21,6 +23,8 @@ import { CurrentUser } from 'src/decorators/current-user.decorator';
 import type { IAuthEmployee } from 'src/employees/interface/employee.interface';
 import { LeaveStatus } from './enums/leave.enum';
 import { getDaysCount } from 'src/utils/helpers.util';
+import prisma from 'src/prisma/prisma.middleware';
+import { Leave } from '@prisma/client';
 
 @Controller('leaves')
 @UseGuards(AuthGuard('jwt'), PermissionsGuard)
@@ -29,6 +33,18 @@ export class LeavesController {
     private leaveService: LeavesService,
     private uploaderService: UploaderService,
   ) {}
+
+  @Get()
+  @Permissions('leave:read', 'leave:manage')
+  async getLeaves() {
+    const leaves = await this.leaveService.getLeaves();
+
+    return {
+      statuscode: 200,
+      message: 'Fetched leaves successfully',
+      data: leaves,
+    };
+  }
 
   @Get('own')
   @Permissions('leave:read', 'leave:manage')
@@ -85,26 +101,34 @@ export class LeavesController {
     // Get leave duration
     const duration = getDaysCount(input.startDate, input.endDate);
 
-    // upload files to local folder
-    const uploadedAttachments = files?.map(async (file) => {
-      const result = await this.uploaderService.uploadFile(
-        file,
-        Number(input.leaveTypeId),
-        employee.id,
-        duration,
-      );
-      return {
-        type: file.originalname,
-        url: result.url,
-      };
-    });
+    let leave: Leave;
 
-    const attachments = await Promise.all(uploadedAttachments);
+    if (!files) {
+      leave = await this.leaveService.createLeave(employee.id, {
+        ...input,
+      });
+    } else {
+      // upload files to local folder
+      const uploadedAttachments = files?.map(async (file) => {
+        const result = await this.uploaderService.uploadFile(
+          file,
+          Number(input.leaveTypeId),
+          employee.id,
+          duration,
+        );
+        return {
+          type: file.originalname,
+          url: result.url,
+        };
+      });
 
-    const leave = await this.leaveService.createLeave(employee.id, {
-      ...input,
-      attachments,
-    });
+      const attachments = await Promise.all(uploadedAttachments);
+
+      leave = await this.leaveService.createLeave(employee.id, {
+        ...input,
+        attachments,
+      });
+    }
 
     return {
       statuscode: 201,
@@ -113,10 +137,13 @@ export class LeavesController {
     };
   }
 
-  @Put()
+  @Put(':leaveId')
   @Permissions('leave:approve', 'leave:manage')
-  async approveLeave(@Body() input: ApproveLeaveDto) {
-    const response = await this.leaveService.approveLeave(input);
+  async approveLeave(
+    @Body() input: ApproveLeaveDto,
+    @Param('leaveId') leaveId: number,
+  ) {
+    const response = await this.leaveService.approveLeave(leaveId, input);
 
     return {
       statuscode: 200,
@@ -124,5 +151,25 @@ export class LeavesController {
         response.status === 'Approved' ? 'Leave approved' : 'Leave rejected',
       data: response,
     };
+  }
+
+  @Post(':leaveId/cancel')
+  @Permissions('leave:update', 'leave:manage')
+  async cancelLeave(
+    @Param('leaveId') leaveId: number,
+    @CurrentUser() employee: IAuthEmployee,
+  ) {
+    const response = await this.leaveService.cancelLeave(leaveId, employee.id);
+
+    return {
+      statuscode: 200,
+      message: 'Leave canceled',
+      data: response,
+    };
+  }
+
+  @Delete()
+  async delete() {
+    return await prisma.leave.deleteMany();
   }
 }
