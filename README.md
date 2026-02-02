@@ -84,12 +84,6 @@ JWT_EXPIRATION=expiration
 
 ## Running the project
 
-- Run migration reset to run all migrations:
-
-```bash
-npx prisma migrate reset
-```
-
 - View the db at:
 
 > ./prisma/dev.db
@@ -98,6 +92,7 @@ npx prisma migrate reset
 
 ```bash
 npm install
+npx prisma migrate reset
 npm run start:dev
 ```
 
