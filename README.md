@@ -84,10 +84,6 @@ JWT_EXPIRATION=expiration
 
 ## Running the project
 
-- View the db at:
-
-> ./prisma/dev.db
-
 - Development mode:
 
 ```bash
@@ -101,6 +97,10 @@ npm run start:dev
 ```bash
 http://localhost:3000/api/v1
 ```
+
+- View the db at:
+
+> ./prisma/dev.db
 
 ## Note
 
